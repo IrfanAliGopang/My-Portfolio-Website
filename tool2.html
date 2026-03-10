@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Generator | My Portfolio</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: #0b0000;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(20,0,0,0.95);
+        padding: 40px 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    h2 {
+        color: #ff1a1a;
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        border: 1px solid #ff1a1a;
+        background: #1a0000;
+        color: #fff;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    button {
+        padding: 12px 25px;
+        background: #ff1a1a;
+        border: none;
+        border-radius: 25px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background: #b30000;
+    }
+
+    .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: 500;
+        word-break: break-all;
+        padding: 10px;
+        border-radius: 10px;
+        background: #1a0000;
+        border: 1px solid #ff1a1a;
+        display: none; /* hidden until password is generated */
+    }
+
+    #copyBtn {
+        display: none; /* hidden until password is generated */
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    /* Copied state */
+    #copyBtn.copied {
+        background: #28a745; /* green */
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2>Strong Password Generator</h2>
+        <input type="number" id="passwordLength" placeholder="Enter password length (e.g., 12)" min="4">
+        <button onclick="generatePassword()">Generate Password</button>
+
+        <div class="result" id="result"></div>
+        <button id="copyBtn" onclick="copyPassword()">Copy Password</button>
+    </div>
+
+<script>
+    let currentPassword = "";
+    const copyBtn = document.getElementById('copyBtn');
+
+    function generatePassword() {
+        const length = parseInt(document.getElementById('passwordLength').value);
+        const result = document.getElementById('result');
+
+        if (!length || length < 4) {
+            alert("Please enter a valid length (minimum 4)!");
+            return;
+        }
+
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            password += characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        currentPassword = password;
+        result.textContent = password;
+        result.style.display = "block"; // show password box
+        copyBtn.style.display = "block"; // show copy button
+        copyBtn.textContent = "Copy Password"; // reset button text in case it was copied before
+        copyBtn.classList.remove("copied"); // reset button style
+    }
+
+    function copyPassword() {
+        if (!currentPassword) return;
+        navigator.clipboard.writeText(currentPassword)
+            .then(() => {
+                // Change button to indicate copied
+                copyBtn.textContent = "✔ Copied!";
+                copyBtn.classList.add("copied");
+
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    copyBtn.textContent = "Copy Password";
+                    copyBtn.classList.remove("copied");
+                }, 2000);
+            })
+            .catch(() => {
+                copyBtn.textContent = "Failed!";
+                copyBtn.classList.add("copied");
+                setTimeout(() => {
+                    copyBtn.textContent = "Copy Password";
+                    copyBtn.classList.remove("copied");
+                }, 2000);
+            });
+    }
+</script>
+</body>
+</html>

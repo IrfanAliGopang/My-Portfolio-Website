@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flappy Bird | My Portfolio</title>
+<style>
+    body {
+        margin: 0;
+        background: #0b0000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    #gameContainer {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: 3px solid #ff1a1a;
+        border-radius: 15px;
+        background: #140000;
+        margin: 10px 0;
+    }
+
+    h2 {
+        color: #ff1a1a;
+        margin: 0;
+        font-size: 24px;
+        word-wrap: break-word;
+    }
+
+    p {
+        color: #fff;
+        margin: 5px 0;
+        font-size: 14px;
+    }
+</style>
+</head>
+<body>
+<div id="gameContainer">
+    <h2>Flappy Bird</h2>
+    <canvas id="gameCanvas"></canvas>
+    <p>Click anywhere on the canvas to flap!</p>
+</div>
+
+<script>
+// Canvas setup
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas size
+function resizeCanvas() {
+    canvas.width = Math.min(window.innerWidth - 40, 400);
+    canvas.height = canvas.width * 1.4;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Bird image
+const birdImg = new Image();
+birdImg.src = 'gameicon.png';
+
+// Game variables
+let bird, pipes, frame, score, gameOver;
+let pipeWidth, pipeGap;
+
+// Initialize or reset game
+function initGame() {
+    // Scale values based on canvas
+    const scale = canvas.width / 350; // original design scale
+
+    bird = {
+        x: 80 * scale,
+        y: canvas.height / 2,
+        width: 35 * scale,
+        height: 25 * scale,
+        velocity: 0,
+        gravity: 0.3 * scale,
+        lift: -5 * scale
+    };
+
+    pipes = [];
+    frame = 0;
+    score = 0;
+    gameOver = false;
+
+    pipeWidth = 40 * scale;
+    pipeGap = 120 * scale;
+}
+
+initGame();
+
+// Click to flap
+canvas.addEventListener('click', () => {
+    if (!gameOver) bird.velocity = bird.lift;
+    else initGame();
+});
+
+// Add pipe
+function addPipe() {
+    const topHeight = Math.random() * (canvas.height - pipeGap - 80) + 40;
+    const bottomY = topHeight + pipeGap;
+    pipes.push({ x: canvas.width, top: topHeight, bottom: bottomY, passed: false });
+}
+
+// Draw everything
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Bird
+    ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+
+    // Pipes
+    pipes.forEach(pipe => {
+        ctx.fillStyle = '#ff1a1a';
+        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+        ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+    });
+
+    // Score
+    ctx.fillStyle = '#fff';
+    ctx.font = `${Math.floor(canvas.width / 15)}px Poppins`;
+    ctx.fillText("Score: " + score, 10, 25);
+}
+
+// Update game
+function update() {
+    if (gameOver) return;
+
+    bird.velocity += bird.gravity;
+    bird.y += bird.velocity;
+
+    // Bird hits floor or ceiling
+    if (bird.y + bird.height > canvas.height || bird.y < 0) gameOver = true;
+
+    pipes.forEach(pipe => {
+        pipe.x -= 3;
+
+        // Collision
+        if (
+            bird.x < pipe.x + pipeWidth &&
+            bird.x + bird.width > pipe.x &&
+            (bird.y < pipe.top || bird.y + bird.height > pipe.bottom)
+        ) {
+            gameOver = true;
+        }
+
+        // Score increment
+        if (!pipe.passed && pipe.x + pipeWidth < bird.x) {
+            score++;
+            pipe.passed = true;
+        }
+    });
+
+    // Remove off-screen pipes
+    if (pipes.length && pipes[0].x + pipeWidth < 0) pipes.shift();
+
+    // Add new pipe
+    frame++;
+    if (frame % 100 === 0) addPipe();
+}
+
+// Main loop
+function loop() {
+    update();
+    draw();
+
+    if (gameOver) {
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.floor(canvas.width / 12)}px Poppins`;
+        ctx.fillText("Game Over!", canvas.width / 2 - 70, canvas.height / 2);
+        ctx.font = `${Math.floor(canvas.width / 25)}px Poppins`;
+        ctx.fillText("Click canvas to restart", canvas.width / 2 - 75, canvas.height / 2 + 30);
+    }
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drawing Tool | My Portfolio</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background: #0b0000;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        color: #ff1a1a;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    #controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    #controls > * {
+        padding: 5px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ff1a1a;
+        background: #140000;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    #controls input[type="color"], #controls input[type="number"], #controls select {
+        border: 1px solid #ff1a1a;
+        background: #0b0000;
+        color: #fff;
+        padding: 3px;
+    }
+
+    canvas {
+        border: 3px solid #ff1a1a;
+        border-radius: 10px;
+        background: #fff;
+        touch-action: none;
+    }
+
+    #sizeIndicator {
+        margin-top: 5px;
+        font-size: 14px;
+        color: #ff1a1a;
+    }
+
+    @media(max-width: 600px){
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    }
+</style>
+</head>
+<body>
+<h2>Drawing Tool with Shape Preview</h2>
+
+<div id="controls">
+    <label>Color: <input type="color" id="colorPicker" value="#ff1a1a"></label>
+    <label>Brush Size: <input type="number" id="brushSize" value="3" min="1" max="20"></label>
+    <label>Shape:
+        <select id="shapeSelect">
+            <option value="pencil">Pencil</option>
+            <option value="rectangle">Rectangle</option>
+            <option value="circle">Circle</option>
+        </select>
+    </label>
+    <label><input type="checkbox" id="fillShape"> Fill Shape</label>
+    <button id="clearBtn">Clear</button>
+    <button id="saveBtn">Save</button>
+</div>
+
+<canvas id="drawingCanvas" width="800" height="500"></canvas>
+<div id="sizeIndicator"></div>
+
+<script>
+const canvas = document.getElementById('drawingCanvas');
+const ctx = canvas.getContext('2d');
+
+let drawing = false;
+let startX, startY;
+let tempCanvasData = null;
+
+const colorPicker = document.getElementById('colorPicker');
+const brushSize = document.getElementById('brushSize');
+const shapeSelect = document.getElementById('shapeSelect');
+const fillShape = document.getElementById('fillShape');
+const clearBtn = document.getElementById('clearBtn');
+const saveBtn = document.getElementById('saveBtn');
+const sizeIndicator = document.getElementById('sizeIndicator');
+
+// Save canvas state
+function saveCanvasState() {
+    tempCanvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+// Restore canvas state
+function restoreCanvasState() {
+    if(tempCanvasData) ctx.putImageData(tempCanvasData, 0, 0);
+}
+
+// Draw preview shape
+function drawPreview(x, y) {
+    restoreCanvasState();
+    const w = x - startX;
+    const h = y - startY;
+    ctx.strokeStyle = colorPicker.value;
+    ctx.lineWidth = brushSize.value;
+    if(shapeSelect.value === 'rectangle'){
+        if(fillShape.checked){
+            ctx.fillStyle = colorPicker.value;
+            ctx.fillRect(startX, startY, w, h);
+        } else {
+            ctx.strokeRect(startX, startY, w, h);
+        }
+        sizeIndicator.textContent = `Width: ${Math.abs(w)} Height: ${Math.abs(h)}`;
+    } else if(shapeSelect.value === 'circle'){
+        const radius = Math.sqrt(w*w + h*h);
+        ctx.beginPath();
+        ctx.arc(startX, startY, radius, 0, Math.PI*2);
+        if(fillShape.checked){
+            ctx.fillStyle = colorPicker.value;
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+        sizeIndicator.textContent = `Radius: ${Math.round(radius)}`;
+    }
+}
+
+// Mouse Events
+canvas.addEventListener('mousedown', (e) => {
+    drawing = true;
+    startX = e.offsetX;
+    startY = e.offsetY;
+    saveCanvasState();
+    if(shapeSelect.value === 'pencil'){
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+    }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    const x = e.offsetX;
+    const y = e.offsetY;
+    if(!drawing) return;
+
+    if(shapeSelect.value === 'pencil'){
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = brushSize.value;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        sizeIndicator.textContent = '';
+    } else {
+        drawPreview(x, y);
+    }
+});
+
+canvas.addEventListener('mouseup', (e) => {
+    drawing = false;
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    if(shapeSelect.value === 'rectangle'){
+        const w = x - startX;
+        const h = y - startY;
+        if(fillShape.checked){
+            ctx.fillStyle = colorPicker.value;
+            ctx.fillRect(startX, startY, w, h);
+        } else {
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+            ctx.strokeRect(startX, startY, w, h);
+        }
+    } else if(shapeSelect.value === 'circle'){
+        const radius = Math.sqrt((x - startX)**2 + (y - startY)**2);
+        ctx.beginPath();
+        ctx.arc(startX, startY, radius, 0, Math.PI*2);
+        if(fillShape.checked){
+            ctx.fillStyle = colorPicker.value;
+            ctx.fill();
+        } else {
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+            ctx.stroke();
+        }
+    }
+    sizeIndicator.textContent = '';
+});
+
+// Touch support for mobile
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    drawing = true;
+    startX = touch.clientX - rect.left;
+    startY = touch.clientY - rect.top;
+    saveCanvasState();
+    if(shapeSelect.value === 'pencil'){
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+    }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if(!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    if(shapeSelect.value === 'pencil'){
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = brushSize.value;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        sizeIndicator.textContent = '';
+    } else {
+        drawPreview(x, y);
+    }
+});
+
+canvas.addEventListener('touchend', () => {
+    drawing = false;
+    sizeIndicator.textContent = '';
+});
+// Clear canvas
+clearBtn.addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Save canvas as image
+saveBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'my-drawing.png';
+    link.href = canvas.toDataURL();
+    link.click();
+});
+</script>
+</body>
+</html>

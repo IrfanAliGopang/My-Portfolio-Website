@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percentage Calculator | My Portfolio</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: #0b0000;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(20,0,0,0.95);
+        padding: 40px 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    h2 {
+        color: #ff1a1a;
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        border: 1px solid #ff1a1a;
+        background: #1a0000;
+        color: #fff;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    button {
+        padding: 12px 25px;
+        background: #ff1a1a;
+        border: none;
+        border-radius: 25px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    button:hover {
+        background: #b30000;
+    }
+
+    .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: 500;
+        padding: 10px;
+        border-radius: 10px;
+        background: #1a0000;
+        border: 1px solid #ff1a1a;
+        display: none;
+    }
+
+    #copyBtn {
+        display: none;
+        width: 100%;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+
+    #copyBtn.copied {
+        background: #28a745; /* green */
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Percentage Calculator</h2>
+    <input type="number" id="value" placeholder="Enter value" min="0">
+    <input type="number" id="total" placeholder="Enter total" min="1">
+    <button onclick="calculatePercentage()">Calculate Percentage</button>
+
+    <div class="result" id="result"></div>
+    <button id="copyBtn" onclick="copyResult()">Copy Result</button>
+</div>
+
+<script>
+    let currentResult = "";
+
+    function calculatePercentage() {
+        const value = parseFloat(document.getElementById('value').value);
+        const total = parseFloat(document.getElementById('total').value);
+        const resultBox = document.getElementById('result');
+        const copyBtn = document.getElementById('copyBtn');
+
+        if (isNaN(value) || isNaN(total) || total <= 0) {
+            alert("Please enter valid numbers (Total must be > 0)");
+            return;
+        }
+
+        const percentage = ((value / total) * 100).toFixed(2) + "%";
+        currentResult = percentage;
+        resultBox.textContent = percentage;
+        resultBox.style.display = "block";
+        copyBtn.style.display = "block";
+        copyBtn.textContent = "Copy Result";
+        copyBtn.classList.remove("copied");
+    }
+
+    function copyResult() {
+        if (!currentResult) return;
+        navigator.clipboard.writeText(currentResult)
+            .then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.textContent = "✔ Copied!";
+                copyBtn.classList.add("copied");
+                setTimeout(() => {
+                    copyBtn.textContent = "Copy Result";
+                    copyBtn.classList.remove("copied");
+                }, 2000);
+            });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator | My Portfolio</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: #0b0000;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(20,0,0,0.95);
+        padding: 40px 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    h2 {
+        color: #ff1a1a;
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        border: 1px solid #ff1a1a;
+        background: #1a0000;
+        color: #fff;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    button {
+        padding: 12px 25px;
+        background: #ff1a1a;
+        border: none;
+        border-radius: 25px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #b30000;
+    }
+
+    .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: 500;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2>Age Calculator</h2>
+        <input type="number" id="birthYear" placeholder="Enter your birth year">
+        <button onclick="calculateAge()">Calculate Age</button>
+        <div class="result" id="result"></div>
+    </div>
+
+<script>
+    function calculateAge() {
+        const birthYear = document.getElementById('birthYear').value;
+        const result = document.getElementById('result');
+
+        if (!birthYear) {
+            result.textContent = "Please enter your birth year!";
+            return;
+        }
+
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - parseInt(birthYear);
+
+        if (age < 0) {
+            result.textContent = "You haven't been born yet! 😅";
+        } else {
+            result.textContent = `You are ${age} years old.`;
+        }
+    }
+</script>
+</body>
+</html>
